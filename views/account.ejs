@@ -1,0 +1,86 @@
+<%- include("partials/header.ejs") %>
+<div class="account-container ">
+    <div class="row ">
+        <div class="col border border-dark">
+            <!-- account -->
+            <h6>Welcome back <%= customerData.fullname %>!</h6>
+            <h6>Your BTC balance: <%= customerData.btc %></h6>
+            <h6>Your ETH balance: <%= customerData.eth %></h6>
+            <h6>Your USD balance: <%= customerData.usd %></h6>
+            <h6>Your TRY balance: <%= customerData.trl %></h6>
+            <a class="btn btn-warning" href="/login">Log Out</a>
+        </div>
+        <div class="col border border-dark">
+            <!-- transfer -->
+            <h6>TRANSFER</h6>
+            <form action="/transfer" method="post" class="form-login">
+                <div class="form-login">
+                  <label for="currency">Choose the currency to send: </label>
+                  <br>
+                  <select id="currency" name="currency" required>
+                    <option value="btc">btc</option>
+                    <option value="eth">eth</option>
+                    <option value="usd">usd</option>
+                    <option value="try">try</option>
+                  </select>
+                </div>
+                <div class="form-login">
+                  <label for="amount">Enter the amount (integer): </label>
+                  <br>
+                  <input type="text" name="amount" id="amount" required>
+                </div>
+                <div class="form-login">
+                    <label for="username">Enter the username which receives the money: </label>
+                    <br>
+                    <input type="text" name="username" id="username" required>
+                    <p class="fw-light">(Usernames are treated like IBANs)</p>
+                  </div>
+                <div class="form-login">
+                  <input class="btn btn-warning" type="submit" value="Send!">
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col border border-dark">
+            <!-- dunno yet -->
+            <h6>your transfers / different buttons with join operation</h6>
+        </div>
+        <div class="col border border-dark">
+            <!-- exchange -->
+            <h6>EXCHANGE</h6>
+            <form action="/exchange" method="post" class="form-login">
+                <div class="form-login">
+                  <label for="currency">Exchange from: </label>
+                  <br>
+                  <select id="currency" name="fromcurrency" required>
+                    <option value="btc">btc</option>
+                    <option value="eth">eth</option>
+                    <option value="usd">usd</option>
+                    <option value="try">try</option>
+                  </select>
+                </div>
+                <div class="form-login">
+                  <label for="amount">Enter the amount to be exchanged from (integer): </label>
+                  <br>
+                  <input type="text" name="amount" id="amount" required>
+                </div>
+                <div class="form-login">
+                    <label for="currency">Exchange to: </label>
+                    <br>
+                    <select id="currency" name="tocurrency" required>
+                      <option value="btc">btc</option>
+                      <option value="eth">eth</option>
+                      <option value="usd">usd</option>
+                      <option value="try">try</option>
+                    </select>
+                  </div>
+                <div class="form-login">
+                  <input class="btn btn-warning" type="submit" value="Exchange!">
+                </div>
+            </form>
+        </div>       
+    </div>
+</div>
+<!-- <h6>Welcome back <%# customerData.fullname %></h6> -->
+<%- include("partials/footer.ejs") %>

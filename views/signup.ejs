@@ -1,0 +1,30 @@
+<%- include("partials/header.ejs") %>
+<form action="" method="post" class="form-signup">
+    <% if (usernameData == "taken") { %>
+      <h6>Username has taken, try another one!</h6>
+    <% } %>
+    <% if (usernameData == "success") { %>
+      <h6>Sign up successful! Please log in.</h6>
+    <% } %>
+    <div class="form-signup">
+        <label for="fullname">Enter your full name: </label>
+        <input type="text" name="fullname" id="fullname" required>
+    </div>
+    <div class="form-signup">
+      <label for="username">Enter your username: </label>
+      <input type="text" name="username" id="username" required>
+    </div>
+    <div class="form-signup">
+      <label for="password">Enter your password: </label>
+      <input type="password" name="password" id="password" required>
+    </div>
+    <div class="form-signup">
+        <label for="country">Enter your country: </label>
+        <input type="country" name="country" id="country" required>
+      </div>
+    <div class="form-signup">
+        <input class="btn btn-warning" type="submit" value="Sign Up">
+        <a class="btn btn-warning" href="/login">Login</a>
+    </div>
+</form>
+<%- include("partials/footer.ejs") %>

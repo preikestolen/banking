@@ -1,0 +1,19 @@
+<%- include("partials/header.ejs") %>
+<form action="" method="post" class="form-login">
+    <% if (loginData == "wrong") { %>
+      <h6>Wrong username or password, try again!</h6>
+    <% } %>
+    <div class="form-login">
+      <label for="username">Enter your username: </label>
+      <input type="text" name="username" id="username" required>
+    </div>
+    <div class="form-login">
+      <label for="password">Enter your password: </label>
+      <input type="password" name="password" id="password" required>
+    </div>
+    <div class="form-login">
+      <a class="btn btn-warning" href="/signup">Sign Up</a>
+      <input class="btn btn-warning" type="submit" value="Login">
+    </div>
+</form>
+<%- include("partials/footer.ejs") %>
