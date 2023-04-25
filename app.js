@@ -36,13 +36,15 @@ app.get("/", function(req, res) {
 });
 
 app.get("/login", function(req, res) {
-    res.clearCookie("context", { httpOnly: true });
+    res.clearCookie("context", { httpOnly: true, overwrite: true});
+    res.clearCookie("txSuccess", { httpOnly: true, overwrite: true});
     // delete cookie in log out
     res.render(__dirname + "/views/login.ejs", {loginData: "none"});
 });
 
 app.get("/signup", function(req, res) {
-    res.clearCookie("context", { httpOnly: true });
+    res.clearCookie("context", { httpOnly: true, overwrite: true});
+    res.clearCookie("txSuccess", { httpOnly: true, overwrite: true});
     res.render(__dirname + "/views/signup.ejs", {usernameData: "none"});
 });
 
@@ -87,15 +89,6 @@ app.post("/login", function(req, res) {
     var userEthAmount = 0
     var userUsdAmount = 0
     var userTryAmount = 0
-    conn.query(getBalances, function (err, result) {
-        if (err) throw err;
-        // console.log(result)
-        result = result[0]
-        userBtcAmount = result.btc
-        userEthAmount = result.eth
-        userUsdAmount = result.usd
-        userTryAmount = result.trl
-    });
     conn.query(query, function (err, result) {
         if (err) throw err;
         if (result.length > 0) {
@@ -118,8 +111,17 @@ app.post("/login", function(req, res) {
                 usd: userUsdAmount,
                 trl: userTryAmount
             };
+            conn.query(getBalances, function (err, result) {
+                if (err) throw err;
+                // console.log(result)
+                result = result[0]
+                userBtcAmount = result.btc
+                userEthAmount = result.eth
+                userUsdAmount = result.usd
+                userTryAmount = result.trl
+            });
             res.cookie("context", newDict, { httpOnly: true });
-            res.redirect(303, "/account")
+            return res.redirect(303, "/account")
         }
         else {
             // username or password is incorrect or user not found
@@ -130,8 +132,27 @@ app.post("/login", function(req, res) {
 
 app.get("/account", function(req, res) {
     const context = req.cookies["context"];
+    if(context == null) {
+        // this if statement is here
+        // to prevent crash when
+        // user logs out and when directed to login page
+        // he goes to previous page and see the account details
+        // but when he refreshes the page, it gets error 
+        // since context cookie is deleted as he went through get("/login")
+        return res.redirect(301, "/login")
+    }
     const username = context.username
     getBalances =`select * from account where account.username = "${username}"`
+    getTransfers = `select t.txCurrency, t.txAmount, ` +
+    `a.username as fromUsername, c.fullname as fromName, a2.username as toUsername, c2.fullname as toName ` +
+    `from transfer as t join account as a on t.fromID = a.accountid join account as a2 on  t.toID = a2.accountid `+
+    `join customer as c on a.customerid = c.customerid join customer as c2 on a2.customerid = c2.customerid `+
+    `where a.username = "${username}"`
+    conn.query(getTransfers, function (err, result) {
+        if (err) throw err;
+        // result = result[0]
+        console.log(result)
+    });
     conn.query(getBalances, function (err, result) {
         if (err) throw err;
         result = result[0]
@@ -144,9 +165,12 @@ app.get("/account", function(req, res) {
         res.cookie('context', newContext, {httpOnly: true, overwrite: true});
         // console.log(newContext)
         if(context == null) {
-            res.redirect(301, "/login")
+            return res.redirect(301, "/login")
         }
-        res.render(__dirname + "/views/account.ejs", {customerData: newContext});
+        txCookie = req.cookies["txSuccess"];
+        // console.log(txCookie)
+        res.clearCookie("txSuccess", { httpOnly: true, overwrite: true});
+        res.render(__dirname + "/views/account.ejs", {customerData: newContext, txData: txCookie});
     });
 });
 
@@ -157,7 +181,12 @@ app.post("/transfer", function (req, res) {
     const amount = req.body.amount
     const username = req.body.username
     const context = req.cookies["context"];
+    if(context == null) {
+        return res.redirect(301, "/login")
+    }
     const fromUsername = context.username
+    var fromID = 0;
+    var toID = 0;
     checkAccount = `select * from account where account.username = "${username}"`
     checkFromAccount = `select * from account where account.username = "${fromUsername}"`
     minusAccount = `update account set account.` + currency + `= account.` + currency + `-` + amount + ` where account.username = "${fromUsername}"`
@@ -165,10 +194,13 @@ app.post("/transfer", function (req, res) {
     conn.query(checkAccount, function (err, result) {
         if(result.length > 0) {
             // receiver username exists, now check if sender balance is enough
+            result = result[0]
+            toID = result.accountid
             conn.query(checkFromAccount, function (err, result) {
                 // check if sender balance is enough
                 result = result[0]
                 if(eval("result." + currency +" >= amount")) {
+                    fromID = result.accountid
                     // console.log("transfer success")
                     conn.query(minusAccount, function (err, result) {
                         // make the transfer
@@ -176,17 +208,27 @@ app.post("/transfer", function (req, res) {
                     conn.query(plusAccount, function (err, result) {
                         // make the transfer
                     });
-                    res.redirect(303, "/account")
+                    newTransfer = `insert into transfer (fromID, toID, txCurrency, txAmount) values ("${fromID}", "${toID}", "${currency}", "${amount}")`
+                    conn.query(newTransfer, function (err, result) {
+                        // add the transfer
+                        if (err) throw err;
+                    });
+                    res.cookie("txSuccess", {"tx": "success"}, { httpOnly: true, overwrite: true });
+                    return res.redirect(303, "/account")
                 }
                 else {
                     // balance is not enough, do not make the transfer
                     // console.log("balance not enough")
+                    res.cookie("txSuccess", {"tx": "nobalance"}, { httpOnly: true, overwrite: true });
+                    return res.redirect(303, "/account")
                 }
             });
         }
         else{
             // receiver account is not found
             // console.log("account to sent not found")
+            res.cookie("txSuccess", {"tx": "nouser"}, { httpOnly: true, overwrite: true });
+            return res.redirect(303, "/account")
         }
     });
 });

@@ -38,13 +38,24 @@
                 <div class="form-login">
                   <input class="btn btn-warning" type="submit" value="Send!">
                 </div>
+                <div class="form-login">
+                  <% if (txData != null && txData.tx == "success") { %>
+                    <h6>Transfer completed!</h6>
+                  <% } %>
+                  <% if (txData != null && txData.tx == "nobalance") { %>
+                    <h6>Your balance is not enough!</h6>
+                  <% } %>
+                  <% if (txData != null && txData.tx == "nouser") { %>
+                    <h6>Recipient not found!</h6>
+                  <% } %>
+                </div>
             </form>
         </div>
     </div>
     <div class="row">
         <div class="col border border-dark">
             <!-- dunno yet -->
-            <h6>your transfers / different buttons with join operation</h6>
+            <h6>YOUR ACTIONS</h6>
         </div>
         <div class="col border border-dark">
             <!-- exchange -->

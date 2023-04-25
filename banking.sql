@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:8889
--- Generation Time: Apr 23, 2023 at 04:02 PM
+-- Generation Time: Apr 25, 2023 at 06:05 PM
 -- Server version: 5.7.39
 -- PHP Version: 7.4.33
 
@@ -69,6 +69,45 @@ INSERT INTO `customer` (`customerid`, `username`, `password`, `fullname`, `count
 (43, 'ece', 'ece', 'ece e', 'tr'),
 (44, 'cem', 'cem', 'cem yilmaz', 'tr');
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `transfer`
+--
+
+CREATE TABLE `transfer` (
+  `txID` int(11) NOT NULL,
+  `fromID` int(11) NOT NULL,
+  `toID` int(11) NOT NULL,
+  `txCurrency` varchar(200) NOT NULL,
+  `txAmount` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `transfer`
+--
+
+INSERT INTO `transfer` (`txID`, `fromID`, `toID`, `txCurrency`, `txAmount`) VALUES
+(1, 8, 7, 'btc', 2),
+(2, 7, 8, 'btc', 2),
+(3, 8, 7, 'usd', 100),
+(4, 7, 8, 'usd', 100),
+(5, 8, 9, 'btc', 2),
+(6, 8, 7, 'btc', 5),
+(7, 7, 8, 'btc', 5),
+(8, 9, 8, 'btc', 2),
+(9, 8, 7, 'btc', 2),
+(10, 7, 8, 'btc', 2),
+(11, 8, 7, 'btc', 1),
+(12, 7, 8, 'btc', 11),
+(13, 8, 7, 'btc', 10),
+(14, 8, 7, 'btc', 10),
+(15, 7, 8, 'btc', 10),
+(16, 7, 8, 'btc', 2),
+(17, 8, 7, 'btc', 2),
+(18, 8, 9, 'btc', 1),
+(19, 9, 8, 'btc', 1);
+
 --
 -- Indexes for dumped tables
 --
@@ -87,6 +126,14 @@ ALTER TABLE `customer`
   ADD PRIMARY KEY (`customerid`,`username`);
 
 --
+-- Indexes for table `transfer`
+--
+ALTER TABLE `transfer`
+  ADD PRIMARY KEY (`txID`),
+  ADD KEY `fromID` (`fromID`),
+  ADD KEY `toID` (`toID`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -103,6 +150,12 @@ ALTER TABLE `customer`
   MODIFY `customerid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
 
 --
+-- AUTO_INCREMENT for table `transfer`
+--
+ALTER TABLE `transfer`
+  MODIFY `txID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+
+--
 -- Constraints for dumped tables
 --
 
@@ -111,6 +164,13 @@ ALTER TABLE `customer`
 --
 ALTER TABLE `account`
   ADD CONSTRAINT `customer-cons` FOREIGN KEY (`customerid`) REFERENCES `customer` (`customerid`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `transfer`
+--
+ALTER TABLE `transfer`
+  ADD CONSTRAINT `transfer_ibfk_1` FOREIGN KEY (`fromID`) REFERENCES `account` (`accountid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `transfer_ibfk_2` FOREIGN KEY (`toID`) REFERENCES `account` (`accountid`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
