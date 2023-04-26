@@ -31,9 +31,9 @@ body {
 .navbar {
   flex-direction: column;
 }
-.navbar .navbar-nav {
-  /* margin: 1% */
-}
+/* .navbar .navbar-nav {
+  margin: 1%
+} */
 .navbar .nav-item {
   padding: 0.5em 1em;
 }
@@ -45,6 +45,6 @@ border-top: 2px solid #000;
 
 table{
   overflow-y:scroll;
-  height:30%;
+  height:15rem;
   display:block;
 }

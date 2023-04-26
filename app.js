@@ -148,7 +148,7 @@ app.get("/account", function(req, res) {
     `a.username as fromUsername, c.fullname as fromName, a2.username as toUsername, c2.fullname as toName ` +
     `from transfer as t join account as a on t.fromID = a.accountid join account as a2 on  t.toID = a2.accountid `+
     `join customer as c on a.customerid = c.customerid join customer as c2 on a2.customerid = c2.customerid `+
-    `where a.username = "${username}" or a2.username = "${username}"`
+    `where a.username = "${username}" or a2.username = "${username}" order by t.txID desc`
     conn.query(getTransfers, function (err, result) {
         if (err) throw err;
         // result = result[0]

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:8889
--- Generation Time: Apr 25, 2023 at 06:05 PM
+-- Generation Time: Apr 26, 2023 at 03:55 PM
 -- Server version: 5.7.39
 -- PHP Version: 7.4.33
 
@@ -65,9 +65,9 @@ CREATE TABLE `customer` (
 --
 
 INSERT INTO `customer` (`customerid`, `username`, `password`, `fullname`, `country`) VALUES
-(42, 'ali', 'ali', 'ali a', 'tr'),
-(43, 'ece', 'ece', 'ece e', 'tr'),
-(44, 'cem', 'cem', 'cem yilmaz', 'tr');
+(42, 'ali', 'ali', 'Ali Kaya', 'tr'),
+(43, 'ece', 'ece', 'Ece Demir', 'tr'),
+(44, 'cem', 'cem', 'Cem Yılmaz', 'tr');
 
 -- --------------------------------------------------------
 
@@ -106,7 +106,11 @@ INSERT INTO `transfer` (`txID`, `fromID`, `toID`, `txCurrency`, `txAmount`) VALU
 (16, 7, 8, 'btc', 2),
 (17, 8, 7, 'btc', 2),
 (18, 8, 9, 'btc', 1),
-(19, 9, 8, 'btc', 1);
+(19, 9, 8, 'btc', 1),
+(20, 7, 9, 'usd', 500),
+(23, 9, 7, 'usd', 500),
+(24, 7, 9, 'btc', 1),
+(25, 9, 7, 'btc', 1);
 
 --
 -- Indexes for dumped tables
@@ -153,7 +157,7 @@ ALTER TABLE `customer`
 -- AUTO_INCREMENT for table `transfer`
 --
 ALTER TABLE `transfer`
-  MODIFY `txID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `txID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- Constraints for dumped tables
