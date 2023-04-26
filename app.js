@@ -152,7 +152,7 @@ app.get("/account", function(req, res) {
     conn.query(getTransfers, function (err, result) {
         if (err) throw err;
         // result = result[0]
-        console.log(result)
+        // console.log(result)
         // list of dictionary
         transfers = result
     });
