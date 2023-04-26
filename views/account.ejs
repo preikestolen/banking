@@ -39,6 +39,9 @@
                   <input class="btn btn-warning" type="submit" value="Send!">
                 </div>
                 <div class="form-login">
+                  <% if (txData != null && txData.tx == "sameuser") { %>
+                    <h6>Can not transfer to yourself!</h6>
+                  <% } %>
                   <% if (txData != null && txData.tx == "success") { %>
                     <h6>Transfer completed!</h6>
                   <% } %>
@@ -56,6 +59,24 @@
         <div class="col border border-dark">
             <!-- dunno yet -->
             <h6>YOUR ACTIONS</h6>
+            <table>
+              <tr>
+              <% transfersData.forEach(entry => { %>
+              <% if(customerData.username == entry.fromUsername) { %>
+                <th><pre>TRANSFER: OUT | </pre></td>
+              <% } %>
+              <% if(customerData.username == entry.toUsername) { %>
+                <th><pre>TRANSFER: IN  | </pre></td>
+              <% } %>
+              <th><pre>FROM: <%= entry.fromUsername %></pre></td>
+              <th><pre> (<%= entry.fromName %>) </pre></td>
+              <th><pre>TO:<%= entry.toUsername %></pre></td>
+              <th><pre> (<%= entry.toName %>)</pre></td>
+              <th><pre> AMOUNT: <%= entry.txAmount %></pre></td>
+              <th><pre><%= entry.txCurrency %></pre></td>
+              </tr>
+            <% }) %>
+            </table>
         </div>
         <div class="col border border-dark">
             <!-- exchange -->

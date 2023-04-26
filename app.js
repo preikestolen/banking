@@ -132,6 +132,7 @@ app.post("/login", function(req, res) {
 
 app.get("/account", function(req, res) {
     const context = req.cookies["context"];
+    var transfers;
     if(context == null) {
         // this if statement is here
         // to prevent crash when
@@ -147,11 +148,13 @@ app.get("/account", function(req, res) {
     `a.username as fromUsername, c.fullname as fromName, a2.username as toUsername, c2.fullname as toName ` +
     `from transfer as t join account as a on t.fromID = a.accountid join account as a2 on  t.toID = a2.accountid `+
     `join customer as c on a.customerid = c.customerid join customer as c2 on a2.customerid = c2.customerid `+
-    `where a.username = "${username}"`
+    `where a.username = "${username}" or a2.username = "${username}"`
     conn.query(getTransfers, function (err, result) {
         if (err) throw err;
         // result = result[0]
         console.log(result)
+        // list of dictionary
+        transfers = result
     });
     conn.query(getBalances, function (err, result) {
         if (err) throw err;
@@ -170,7 +173,7 @@ app.get("/account", function(req, res) {
         txCookie = req.cookies["txSuccess"];
         // console.log(txCookie)
         res.clearCookie("txSuccess", { httpOnly: true, overwrite: true});
-        res.render(__dirname + "/views/account.ejs", {customerData: newContext, txData: txCookie});
+        res.render(__dirname + "/views/account.ejs", {customerData: newContext, txData: txCookie, transfersData: transfers});
     });
 });
 
@@ -194,6 +197,11 @@ app.post("/transfer", function (req, res) {
     conn.query(checkAccount, function (err, result) {
         if(result.length > 0) {
             // receiver username exists, now check if sender balance is enough
+            if(fromUsername == username) {
+                // can not transfer yourself
+                res.cookie("txSuccess", {"tx": "sameuser"}, { httpOnly: true, overwrite: true });
+                return res.redirect(303, "/account")   
+            }
             result = result[0]
             toID = result.accountid
             conn.query(checkFromAccount, function (err, result) {
