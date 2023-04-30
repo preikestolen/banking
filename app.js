@@ -38,6 +38,7 @@ app.get("/", function(req, res) {
 app.get("/login", function(req, res) {
     res.clearCookie("context", { httpOnly: true, overwrite: true});
     res.clearCookie("txSuccess", { httpOnly: true, overwrite: true});
+    res.clearCookie("exchangeStatus", { httpOnly: true, overwrite: true});
     // delete cookie in log out
     res.render(__dirname + "/views/login.ejs", {loginData: "none"});
 });
@@ -45,6 +46,7 @@ app.get("/login", function(req, res) {
 app.get("/signup", function(req, res) {
     res.clearCookie("context", { httpOnly: true, overwrite: true});
     res.clearCookie("txSuccess", { httpOnly: true, overwrite: true});
+    res.clearCookie("exchangeStatus", { httpOnly: true, overwrite: true});
     res.render(__dirname + "/views/signup.ejs", {usernameData: "none"});
 });
 
@@ -171,16 +173,20 @@ app.get("/account", function(req, res) {
             return res.redirect(301, "/login")
         }
         txCookie = req.cookies["txSuccess"];
-        // console.log(txCookie)
+        exStCookie = req.cookies["exchangeStatus"]
         res.clearCookie("txSuccess", { httpOnly: true, overwrite: true});
-        res.render(__dirname + "/views/account.ejs", {customerData: newContext, txData: txCookie, transfersData: transfers});
+        if(exStCookie != null && exStCookie.ex != "confirm") {
+            res.clearCookie("exchangeStatus", { httpOnly: true, overwrite: true});
+        }
+        res.render(__dirname + "/views/account.ejs", {customerData: newContext, txData: txCookie, transfersData: transfers, exchangeStatusData: exStCookie});
     });
 });
 
 app.post("/transfer", function (req, res) {
     // get is what client gets from server, post is what client posts to server
     // deal with the contents of the submitted transfer form
-    const currency = req.body.currency
+    var currency = req.body.currency
+    if(currency == "try") {currency = "trl"}
     const amount = req.body.amount
     const username = req.body.username
     const context = req.cookies["context"];
@@ -243,4 +249,107 @@ app.post("/transfer", function (req, res) {
   
 app.post("/exchange", function (req, res) {
     // deal with the contents of the submitted exchange form
+    const rates = {
+        btceth: 15.40,
+        btcusd: 25000,
+        btctrl: 500000,
+        ethbtc: 0.065,
+        ethusd: 1700,
+        ethtrl: 34000,
+        usdbtc: 0.00004,
+        usdeth: 0.0006,
+        usdtrl: 20,
+        trlbtc: 0.000002,
+        trleth: 0.00003,
+        trlusd: 0.05
+    }
+    var amount = req.body.amount
+    amount = Number(Number(amount).toFixed(6))
+    var fromCurrency = req.body.fromcurrency
+    var toCurrency = req.body.tocurrency
+    var currentRate;
+    var newAmount;
+    if(fromCurrency == "try") {fromCurrency = "trl"}
+    if(toCurrency == "try") {toCurrency = "trl"}
+    var exDetails = [amount, fromCurrency, toCurrency, currentRate, newAmount]
+    const context = req.cookies["context"];
+    const username = context.username
+    // console.log(exDetails)
+    if(fromCurrency == toCurrency) {
+        // can not exchange same currency
+        if(fromCurrency == "trl") {fromCurrency = "try"}
+        if(toCurrency == "trl") {toCurrency = "try"}
+        exDetails = [amount, fromCurrency, toCurrency, currentRate, newAmount]
+        res.cookie("exchangeStatus", {"ex": "samecurrency", "details": exDetails}, { httpOnly: true, overwrite: true });
+        return res.redirect(303, "/account")
+    }
+    else {
+        if(eval("context." + fromCurrency + ">=" + amount)) {
+            var currentRate = eval("rates." + fromCurrency + toCurrency)
+            var newAmount = amount * currentRate
+            newAmount = Number(newAmount.toFixed(6))
+            exDetails[3] = currentRate
+            exDetails[4] = newAmount
+            // console.log(exDetails)
+            if(fromCurrency == "trl") {fromCurrency = "try"}
+            if(toCurrency == "trl") {toCurrency = "try"}
+            exDetails = [amount, fromCurrency, toCurrency, currentRate, newAmount]
+            res.cookie("exchangeStatus", {"ex": "confirm", "details": exDetails}, { httpOnly: true, overwrite: true });
+            return res.redirect(303, "/account")
+        }
+        else {
+            // balance not enough
+            res.cookie("exchangeStatus", {"ex": "nobalance", "details": exDetails}, { httpOnly: true, overwrite: true });
+            return res.redirect(303, "/account")
+        }
+    }
+});
+
+app.post("/confirmexchange", function (req, res) {
+    // sql for exchanging
+    const context = req.cookies["context"]
+    const username = context.username
+    const exStCookie = req.cookies["exchangeStatus"]
+    var fromCurrency = exStCookie.details[1]
+    const fromAmount = exStCookie.details[0]
+    var toCurrency = exStCookie.details[2]
+    const toAmount = exStCookie.details[4]
+    const exRate = exStCookie.details[3]
+    if(fromCurrency == "try") {fromCurrency = "trl"}
+    if(toCurrency == "try") {toCurrency = "trl"}
+    console.log(exStCookie)
+    console.log(context)
+    if(context == null) {
+        return res.redirect(301, "/login")
+    }
+    getAccount = `select * from account where account.username = "${username}"`
+    conn.query(getAccount, function (err, result) {
+        if(result.length > 0) {
+            // user exists (extra check)
+            result = result[0]
+            const accountId = result.accountid
+            newExchange = `insert into exchange (accountID, fromCurrency, fromAmount, toCurrency, toAmount, exRate) values ("${accountId}", "${fromCurrency}", "${fromAmount}", "${toCurrency}", "${toAmount}", "${exRate}")`
+            updateAccountMinus = `update account set account.` + fromCurrency + `= account.` + fromCurrency + `-` + fromAmount + ` where account.accountid = "${accountId}"`
+            updateAccountPlus = `update account set account.` + toCurrency + `= account.` + toCurrency + `+` + toAmount + ` where account.accountid = "${accountId}"`
+            conn.query(newExchange, function (err, result) {
+                // add the exchange
+                if (err) throw err;
+            });
+            conn.query(updateAccountMinus, function (err, result) {
+                // update the account
+                if (err) throw err;
+            });
+            conn.query(updateAccountPlus, function (err, result) {
+                // update the account
+                if (err) throw err;
+            }); 
+        }
+    });
+    res.clearCookie("exchangeStatus", { httpOnly: true, overwrite: true})
+    return res.redirect(303, "/account")
+});
+
+app.post("/cancelexchange", function (req, res) {
+    res.clearCookie("exchangeStatus", { httpOnly: true, overwrite: true})
+    return res.redirect(303, "/account")
 });

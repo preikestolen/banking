@@ -73,7 +73,11 @@
               <th><pre>| TO:<%= entry.toUsername %></pre></td>
               <th><pre> (<%= entry.toName %>)</pre></td>
               <th><pre> | AMOUNT: <%= entry.txAmount %></pre></td>
-              <th><pre><%= entry.txCurrency %></pre></td>
+              <% if(entry.txCurrency == "trl") { %>
+                <th><pre><%= "try" %></pre></td>
+              <% } else { %>
+                <th><pre><%= entry.txCurrency %></pre></td>
+              <% } %>
               </tr>
             <% }) %>
             </table>
@@ -81,37 +85,54 @@
         <div class="col border border-dark">
             <!-- exchange -->
             <h6>EXCHANGE</h6>
-            <form action="/exchange" method="post" class="form-login">
-                <div class="form-login">
-                  <label for="currency">Exchange from: </label>
-                  <br>
-                  <select id="currency" name="fromcurrency" required>
+            <form class="row" action="/exchange" method="post" class="form-login">
+              <div class="col-auto">
+                <label for="currency">CONVERT</label>
+              </div>
+              <div class="form-login col-auto">
+                <input type="text" name="amount" id="amount" size="4" required>
+              </div>
+              <div class="col-auto">
+                <label for="currency">AMOUNT OF</label>
+              </div>
+              <div class="form-login col-auto">
+                <select id="currencyFrom" name="fromcurrency" required>
+                  <option value="btc">btc</option>
+                  <option value="eth">eth</option>
+                  <option value="usd">usd</option>
+                  <option value="try">try</option>
+                </select>
+              </div>
+              <div class="col-auto">
+                <label for="currency">TO</label>
+              </div>
+              <div class="form-login col-auto">
+                  <select id="currencyTo" name="tocurrency" required>
                     <option value="btc">btc</option>
                     <option value="eth">eth</option>
                     <option value="usd">usd</option>
                     <option value="try">try</option>
                   </select>
-                </div>
-                <div class="form-login">
-                  <label for="amount">Enter the amount to be exchanged from: </label>
-                  <br>
-                  <input type="text" name="amount" id="amount" required>
-                </div>
-                <div class="form-login">
-                    <label for="currency">Exchange to: </label>
-                    <br>
-                    <select id="currency" name="tocurrency" required>
-                      <option value="btc">btc</option>
-                      <option value="eth">eth</option>
-                      <option value="usd">usd</option>
-                      <option value="try">try</option>
-                    </select>
-                  </div>
-                <div class="form-login">
-                  <input class="btn btn-warning" type="submit" value="Exchange!">
-                </div>
+              </div>
+              <div class="form-login col-auto">
+                <input class="btn btn-warning" type="submit" value="See the rate!">
+              </div>
             </form>
-        </div>       
+            <% if (exchangeStatusData != null && exchangeStatusData.ex == "nobalance") { %>
+              <h6>Your balance is not enough!</h6>
+            <% } %>
+            <% if (exchangeStatusData != null && exchangeStatusData.ex == "samecurrency") { %>
+              <h6>Same currency exchange is not allowed!</h6>
+            <% } %>
+            <% if (exchangeStatusData != null && exchangeStatusData.ex == "confirm") { %>
+              <h6>The rate for <%=exchangeStatusData.details[1]%> / <%=exchangeStatusData.details[2]%> is <%=exchangeStatusData.details[3]%></h6>
+              <form class="row" action="/confirmexchange" method="post" class="form-login">
+                <h6 class="col-auto">You are about to exchange <%=exchangeStatusData.details[0]%> <%=exchangeStatusData.details[1]%> to <%=exchangeStatusData.details[4]%> <%=exchangeStatusData.details[2]%></h6>
+                <input class="btn btn-warning col-auto" type="submit" value="Confirm!">
+                <button class="btn btn-warning col-auto mx-3" type="submit" formaction="/cancelexchange">Cancel!</button>
+              </form>
+            <% } %>
+        </div>    
     </div>
 </div>
 <!-- <h6>Welcome back <%# customerData.fullname %></h6> -->
