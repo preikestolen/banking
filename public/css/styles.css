@@ -48,3 +48,9 @@ table{
   height:15rem;
   display:block;
 }
+
+.ex-table {
+  overflow-y:scroll;
+  height:10rem;
+  display:block;
+}

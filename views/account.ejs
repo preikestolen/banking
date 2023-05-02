@@ -57,16 +57,15 @@
     </div>
     <div class="row">
         <div class="col border border-dark">
-            <!-- dunno yet -->
-            <h6>YOUR ACTIONS</h6>
+            <h6>YOUR TRANSFERS</h6>
             <table>
               <tr>
               <% transfersData.forEach(entry => { %>
               <% if(customerData.username == entry.fromUsername) { %>
-                <th><pre>TRANSFER: OUT | </pre></td>
+                <th><pre>TRANSFER:OUT | </pre></td>
               <% } %>
               <% if(customerData.username == entry.toUsername) { %>
-                <th><pre>TRANSFER: IN  | </pre></td>
+                <th><pre>TRANSFER:IN  | </pre></td>
               <% } %>
               <th><pre>FROM: <%= entry.fromUsername %></pre></td>
               <th><pre> (<%= entry.fromName %>) </pre></td>
@@ -132,6 +131,29 @@
                 <button class="btn btn-warning col-auto mx-3" type="submit" formaction="/cancelexchange">Cancel!</button>
               </form>
             <% } %>
+            <h6>YOUR EXCHANGES</h6>
+            <table class="ex-table">
+              <tr>
+              <% exchangesData.forEach(entry => { %>
+              <th><pre>EXCHANGE | </pre></td>
+              <th><pre><%= entry.username %></pre></td>
+              <th><pre> (<%= entry.fullName %>) | </pre></td>
+              <th><pre><%= entry.fromAmount %></pre></td>
+              <% if(entry.fromCurrency == "trl") { %>
+                <th><pre><%= "try" %></pre></td>
+              <% } else { %>
+                <th><pre><%= entry.fromCurrency %></pre></td>
+              <% } %>
+              <th><pre> to <%= entry.toAmount %></pre></td>
+              <% if(entry.toCurrency == "trl") { %>
+                <th><pre><%= "try" %></pre></td>
+              <% } else { %>
+                <th><pre><%= entry.toCurrency %></pre></td>
+              <% } %>
+              <th><pre> | rate = <%= entry.exRate %></pre></td>
+              </tr>
+            <% }) %>
+            </table>
         </div>    
     </div>
 </div>

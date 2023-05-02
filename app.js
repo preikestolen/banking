@@ -135,6 +135,7 @@ app.post("/login", function(req, res) {
 app.get("/account", function(req, res) {
     const context = req.cookies["context"];
     var transfers;
+    var exchanges;
     if(context == null) {
         // this if statement is here
         // to prevent crash when
@@ -145,40 +146,54 @@ app.get("/account", function(req, res) {
         return res.redirect(301, "/login")
     }
     const username = context.username
-    getBalances =`select * from account where account.username = "${username}"`
-    getTransfers = `select t.txCurrency, t.txAmount, ` +
+    var getBalances =`select * from account where account.username = "${username}"`
+    var getTransfers = `select t.txCurrency, t.txAmount, ` +
     `a.username as fromUsername, c.fullname as fromName, a2.username as toUsername, c2.fullname as toName ` +
     `from transfer as t join account as a on t.fromID = a.accountid join account as a2 on  t.toID = a2.accountid `+
     `join customer as c on a.customerid = c.customerid join customer as c2 on a2.customerid = c2.customerid `+
     `where a.username = "${username}" or a2.username = "${username}" order by t.txID desc`
+    var getExchanges = `select a2.exID, a2.fromCurrency as fromCurrency, a2.fromAmount as fromAmount, 
+    a2.toCurrency as toCurrency, a2.toAmount as toAmount, a2.exRate as exRate, c.username as username, c.fullname as fullName
+    from (select a.customerid, e.*
+    from exchange as e, account as a
+    where e.accountID = a.accountid) as a2, customer as c
+    where a2.customerid = c.customerid
+    having c.username = "${username}"
+    order by a2.exID desc`
     conn.query(getTransfers, function (err, result) {
         if (err) throw err;
         // result = result[0]
         // console.log(result)
         // list of dictionary
         transfers = result
-    });
-    conn.query(getBalances, function (err, result) {
-        if (err) throw err;
-        result = result[0]
-        // console.log(result)
-        context.btc = result.btc
-        context.eth = result.eth
-        context.usd = result.usd
-        context.trl = result.trl
-        const newContext = context
-        res.cookie('context', newContext, {httpOnly: true, overwrite: true});
-        // console.log(newContext)
-        if(context == null) {
-            return res.redirect(301, "/login")
-        }
-        txCookie = req.cookies["txSuccess"];
-        exStCookie = req.cookies["exchangeStatus"]
-        res.clearCookie("txSuccess", { httpOnly: true, overwrite: true});
-        if(exStCookie != null && exStCookie.ex != "confirm") {
-            res.clearCookie("exchangeStatus", { httpOnly: true, overwrite: true});
-        }
-        res.render(__dirname + "/views/account.ejs", {customerData: newContext, txData: txCookie, transfersData: transfers, exchangeStatusData: exStCookie});
+        conn.query(getExchanges, function (err, result) {
+            if (err) throw err;
+            // console.log(result)
+            // list of dictionary
+            exchanges = result
+            conn.query(getBalances, function (err, result) {
+                if (err) throw err;
+                result = result[0]
+                // console.log(result)
+                context.btc = result.btc
+                context.eth = result.eth
+                context.usd = result.usd
+                context.trl = result.trl
+                const newContext = context
+                res.cookie('context', newContext, {httpOnly: true, overwrite: true});
+                // console.log(newContext)
+                if(context == null) {
+                    return res.redirect(301, "/login")
+                }
+                txCookie = req.cookies["txSuccess"];
+                exStCookie = req.cookies["exchangeStatus"]
+                res.clearCookie("txSuccess", { httpOnly: true, overwrite: true});
+                if(exStCookie != null && exStCookie.ex != "confirm") {
+                    res.clearCookie("exchangeStatus", { httpOnly: true, overwrite: true});
+                }
+                res.render(__dirname + "/views/account.ejs", {customerData: newContext, txData: txCookie, transfersData: transfers, exchangeStatusData: exStCookie, exchangesData: exchanges});
+            });
+        });
     });
 });
 
@@ -273,6 +288,9 @@ app.post("/exchange", function (req, res) {
     if(toCurrency == "try") {toCurrency = "trl"}
     var exDetails = [amount, fromCurrency, toCurrency, currentRate, newAmount]
     const context = req.cookies["context"];
+    if(context == null) {
+        return res.redirect(301, "/login")
+    }
     const username = context.username
     // console.log(exDetails)
     if(fromCurrency == toCurrency) {

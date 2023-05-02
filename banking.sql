@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:8889
--- Generation Time: Apr 30, 2023 at 09:32 AM
+-- Generation Time: May 02, 2023 at 01:10 PM
 -- Server version: 5.7.39
 -- PHP Version: 7.4.33
 
@@ -42,9 +42,9 @@ CREATE TABLE `account` (
 --
 
 INSERT INTO `account` (`accountid`, `customerid`, `username`, `btc`, `eth`, `usd`, `trl`) VALUES
-(7, 42, 'ali', 10.02, 10, 500, 1000),
-(8, 43, 'ece', 10, 10, 1000.5, 990),
-(9, 44, 'cem', 10, 10, 1000, 1000);
+(7, 42, 'ali', 9.52, 10, 13000, 1000),
+(8, 43, 'ece', 9.7, 10, 1000.5, 150990),
+(9, 44, 'cem', 10, 10, 987.5, 1250);
 
 -- --------------------------------------------------------
 
@@ -91,7 +91,10 @@ CREATE TABLE `exchange` (
 
 INSERT INTO `exchange` (`exID`, `accountID`, `fromCurrency`, `fromAmount`, `toCurrency`, `toAmount`, `exRate`) VALUES
 (1, 8, 'trl', 10, 'usd', 0.5, 0.05),
-(2, 7, 'usd', 500, 'btc', 0.02, 0.00004);
+(2, 7, 'usd', 500, 'btc', 0.02, 0.00004),
+(3, 7, 'btc', 0.5, 'usd', 12500, 25000),
+(4, 9, 'usd', 12.5, 'trl', 250, 20),
+(5, 8, 'btc', 0.3, 'trl', 150000, 500000);
 
 -- --------------------------------------------------------
 
@@ -200,7 +203,7 @@ ALTER TABLE `customer`
 -- AUTO_INCREMENT for table `exchange`
 --
 ALTER TABLE `exchange`
-  MODIFY `exID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `exID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `transfer`
