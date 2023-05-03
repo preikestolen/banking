@@ -6,6 +6,9 @@
     <% if (usernameData == "success") { %>
       <h6>Sign up successful! Please log in.</h6>
     <% } %>
+    <% if (usernameData == "sql-injection") { %>
+      <h6>You can not insert " ; " or " = ". Try again.</h6>
+    <% } %>
     <div class="form-signup">
         <label for="fullname">Enter your full name: </label>
         <input type="text" name="fullname" id="fullname" required>

@@ -3,6 +3,9 @@
     <% if (loginData == "wrong") { %>
       <h6>Wrong username or password, try again!</h6>
     <% } %>
+    <% if (loginData == "sql-injection") { %>
+      <h6>You can not insert " ; " or " = ". Try again.</h6>
+    <% } %>
     <div class="form-login">
       <label for="username">Enter your username: </label>
       <input type="text" name="username" id="username" required>

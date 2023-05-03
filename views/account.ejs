@@ -51,6 +51,9 @@
                   <% if (txData != null && txData.tx == "nouser") { %>
                     <h6>Recipient not found!</h6>
                   <% } %>
+                  <% if (txData != null && txData.tx == "sql-injection") { %>
+                    <h6>You can not insert " ; " or " = ". Try again.</h6>
+                  <% } %>
                 </div>
             </form>
         </div>
@@ -117,6 +120,9 @@
                 <input class="btn btn-warning" type="submit" value="See the rate!">
               </div>
             </form>
+            <% if (exchangeStatusData != null && exchangeStatusData.ex == "sql-injection") { %>
+              <h6>You can not insert " ; " or " = ". Try again.</h6>
+            <% } %>
             <% if (exchangeStatusData != null && exchangeStatusData.ex == "nobalance") { %>
               <h6>Your balance is not enough!</h6>
             <% } %>

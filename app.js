@@ -55,6 +55,14 @@ app.post("/signup", function(req, res) {
     const username = req.body.username
     const password = req.body.password
     const country = req.body.country
+    if(fullname.includes("=") || fullname.includes(";") || username.includes("=") 
+    || username.includes(";") || password.includes("=") || password.includes(";") 
+    || country.includes("=") || country.includes(";")) {
+        // basic sql injection prevention
+        // just checking if = inserted for 1=1
+        // and if ; inserted for ;drop table account;
+        return res.render(__dirname + "/views/signup.ejs", {usernameData: "sql-injection"});
+    }
     checkUsername = `select * from customer where customer.username = "${username}"`
     query = `insert into customer (username, password, fullname, country) values ("${username}", "${password}", "${fullname}", "${country}")`
     conn.query(checkUsername, function (err, result) {
@@ -85,6 +93,12 @@ app.post("/signup", function(req, res) {
 app.post("/login", function(req, res) {
     const username = req.body.username
     const password = req.body.password
+    if(username.includes("=") || username.includes(";") || password.includes("=") || password.includes(";")) {
+        // basic sql injection prevention
+        // just checking if = inserted for 1=1
+        // and if ; inserted for ;drop table account;
+        return res.render(__dirname + "/views/login.ejs", {loginData: "sql-injection"});
+    }
     query = `select * from customer where customer.username = "${username}" and customer.password = "${password}"`
     getBalances =`select * from account where account.username = "${username}"`
     var userBtcAmount = 0
@@ -202,8 +216,17 @@ app.post("/transfer", function (req, res) {
     // deal with the contents of the submitted transfer form
     var currency = req.body.currency
     if(currency == "try") {currency = "trl"}
-    const amount = req.body.amount
+    var amount = req.body.amount
     const username = req.body.username
+    if(username.includes("=") || username.includes(";") || currency.includes("=") 
+    || currency.includes(";") || amount.includes("=") || amount.includes(";")) {
+        // basic sql injection prevention
+        // just checking if = inserted for 1=1
+        // and if ; inserted for ;drop table account;
+        res.cookie("txSuccess", {"tx": "sql-injection"}, { httpOnly: true, overwrite: true });
+        return res.redirect(303, "/account") 
+    }
+    amount = Number(Number(amount).toFixed(4))
     const context = req.cookies["context"];
     if(context == null) {
         return res.redirect(301, "/login")
@@ -279,14 +302,26 @@ app.post("/exchange", function (req, res) {
         trlusd: 0.05
     }
     var amount = req.body.amount
-    amount = Number(Number(amount).toFixed(6))
     var fromCurrency = req.body.fromcurrency
     var toCurrency = req.body.tocurrency
+    var exDetails = [amount, fromCurrency, toCurrency, currentRate, newAmount]
+    if(amount.includes("=") || amount.includes(";") || fromCurrency.includes("=") 
+    || fromCurrency.includes(";") || toCurrency.includes("=") || toCurrency.includes(";")) {
+        // basic sql injection prevention
+        // just checking if = inserted for 1=1
+        // and if ; inserted for ;drop table account;
+        if(fromCurrency == "trl") {fromCurrency = "try"}
+        if(toCurrency == "trl") {toCurrency = "try"}
+        exDetails = [amount, fromCurrency, toCurrency, currentRate, newAmount]
+        res.cookie("exchangeStatus", {"ex": "sql-injection", "details": exDetails}, { httpOnly: true, overwrite: true });
+        return res.redirect(303, "/account")
+    }
+    amount = Number(Number(amount).toFixed(4))
     var currentRate;
     var newAmount;
     if(fromCurrency == "try") {fromCurrency = "trl"}
     if(toCurrency == "try") {toCurrency = "trl"}
-    var exDetails = [amount, fromCurrency, toCurrency, currentRate, newAmount]
+    exDetails = [amount, fromCurrency, toCurrency, currentRate, newAmount]
     const context = req.cookies["context"];
     if(context == null) {
         return res.redirect(301, "/login")
@@ -305,7 +340,7 @@ app.post("/exchange", function (req, res) {
         if(eval("context." + fromCurrency + ">=" + amount)) {
             var currentRate = eval("rates." + fromCurrency + toCurrency)
             var newAmount = amount * currentRate
-            newAmount = Number(newAmount.toFixed(6))
+            newAmount = Number(newAmount.toFixed(4))
             exDetails[3] = currentRate
             exDetails[4] = newAmount
             // console.log(exDetails)
