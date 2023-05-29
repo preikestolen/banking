@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:8889
--- Generation Time: May 03, 2023 at 08:25 AM
+-- Generation Time: May 29, 2023 at 09:36 AM
 -- Server version: 5.7.39
 -- PHP Version: 7.4.33
 
@@ -42,9 +42,9 @@ CREATE TABLE `account` (
 --
 
 INSERT INTO `account` (`accountid`, `customerid`, `username`, `btc`, `eth`, `usd`, `trl`) VALUES
-(7, 42, 'ali', 9.5200, 11.2500, 13000.0000, 1461.3254),
-(8, 43, 'ece', 9.6999, 10.2515, 1000.5000, 99900.1875),
-(9, 44, 'cem', 10.0017, 10.0000, 992.6745, 925.6045);
+(7, 42, 'ali', 9.5200, 11.2500, 13126.5000, 2361.3254),
+(8, 43, 'ece', 1.0719, 7.1015, 28474.0000, 108000.1875),
+(9, 44, 'cem', 10.0017, 11.1500, 992.6745, 1925.6045);
 
 -- --------------------------------------------------------
 
@@ -82,7 +82,7 @@ CREATE TABLE `exchange` (
   `fromAmount` float(10,4) NOT NULL,
   `toCurrency` varchar(200) NOT NULL,
   `toAmount` float(10,4) NOT NULL,
-  `exRate` float(10,6) NOT NULL
+  `exRate` float(10,4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -90,17 +90,23 @@ CREATE TABLE `exchange` (
 --
 
 INSERT INTO `exchange` (`exID`, `accountID`, `fromCurrency`, `fromAmount`, `toCurrency`, `toAmount`, `exRate`) VALUES
-(1, 8, 'trl', 10.0000, 'usd', 0.5000, 0.050000),
-(2, 7, 'usd', 500.0000, 'btc', 0.0200, 0.000040),
-(3, 7, 'btc', 0.5000, 'usd', 12500.0000, 25000.000000),
-(4, 9, 'usd', 12.5000, 'trl', 250.0000, 20.000000),
-(5, 8, 'btc', 0.3000, 'trl', 150000.0000, 500000.000000),
-(6, 8, 'btc', 0.0001, 'eth', 0.0015, 15.400000),
-(7, 9, 'trl', 800.0000, 'btc', 0.0016, 0.000002),
-(8, 9, 'trl', 90.9900, 'usd', 4.5495, 0.050000),
-(9, 9, 'trl', 50.4000, 'btc', 0.0001, 0.000002),
-(10, 9, 'trl', 12.5000, 'usd', 0.6250, 0.050000),
-(11, 8, 'trl', 50000.0000, 'eth', 1.5000, 0.000030);
+(1, 8, 'trl', 10.0000, 'usd', 0.5000, 0.0500),
+(2, 7, 'usd', 500.0000, 'btc', 0.0200, 0.0000),
+(3, 7, 'btc', 0.5000, 'usd', 12500.0000, 25000.0000),
+(4, 9, 'usd', 12.5000, 'trl', 250.0000, 20.0000),
+(5, 8, 'btc', 0.3000, 'trl', 150000.0000, 500000.0000),
+(6, 8, 'btc', 0.0001, 'eth', 0.0015, 15.4000),
+(7, 9, 'trl', 800.0000, 'btc', 0.0016, 0.0000),
+(8, 9, 'trl', 90.9900, 'usd', 4.5495, 0.0500),
+(9, 9, 'trl', 50.4000, 'btc', 0.0001, 0.0000),
+(10, 9, 'trl', 12.5000, 'usd', 0.6250, 0.0500),
+(11, 8, 'trl', 50000.0000, 'eth', 1.5000, 0.0000),
+(12, 8, 'usd', 500.0000, 'trl', 10000.0000, 20.0000),
+(13, 8, 'trl', 100000.0000, 'btc', 0.2000, 0.0000),
+(14, 8, 'usd', 300.0000, 'btc', 0.0120, 0.0000),
+(15, 8, 'eth', 2.0000, 'usd', 3400.0000, 1700.0000),
+(16, 8, 'btc', 1.0000, 'usd', 25000.0000, 25000.0000),
+(17, 8, 'btc', 0.2000, 'trl', 100000.0000, 500000.0000);
 
 -- --------------------------------------------------------
 
@@ -165,7 +171,12 @@ INSERT INTO `transfer` (`txID`, `fromID`, `toID`, `txCurrency`, `txAmount`) VALU
 (44, 9, 7, 'trl', 120.4500),
 (45, 9, 7, 'trl', 83.8500),
 (46, 8, 7, 'trl', 95.8200),
-(47, 9, 7, 'trl', 120.5055);
+(47, 9, 7, 'trl', 120.5055),
+(48, 8, 7, 'usd', 25.7500),
+(49, 8, 7, 'usd', 100.7500),
+(50, 8, 9, 'eth', 1.1500),
+(51, 8, 7, 'trl', 900.0000),
+(52, 8, 9, 'trl', 1000.0000);
 
 --
 -- Indexes for dumped tables
@@ -213,19 +224,19 @@ ALTER TABLE `account`
 -- AUTO_INCREMENT for table `customer`
 --
 ALTER TABLE `customer`
-  MODIFY `customerid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
+  MODIFY `customerid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
 
 --
 -- AUTO_INCREMENT for table `exchange`
 --
 ALTER TABLE `exchange`
-  MODIFY `exID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `exID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `transfer`
 --
 ALTER TABLE `transfer`
-  MODIFY `txID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
+  MODIFY `txID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
 
 --
 -- Constraints for dumped tables
