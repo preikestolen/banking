@@ -79,7 +79,7 @@ app.post("/signup", function(req, res) {
                 conn.query(checkUsername, function (err, result) {
                     // add customer to account table
                     var customerid = result[0].customerid
-                    createAccount = `insert into account (customerid, username, btc, eth, usd, try) values ("${customerid}", "${username}", "${10}", "${10}", "${1000}", "${1000}")`
+                    createAccount = `insert into account (customerid, username, btc, eth, usd, trl) values ("${customerid}", "${username}", "${10}", "${10}", "${1000}", "${1000}")`
                     // initial balances are set for testing purposes
                     conn.query(createAccount, function (err, result) {
                         // account row is added to account table. foreign key is set on customerid and cascade is applied
